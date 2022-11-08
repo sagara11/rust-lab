@@ -8,6 +8,12 @@ enum List {
     Nil,
 }
 
+#[derive(Debug)]
+struct Node {
+    value: i32,
+    children: RefCell<Vec<Rc<Node>>>,
+}
+
 impl List {
     fn tail(&self) -> Option<&RefCell<Rc<List>>> {
         match self {
@@ -30,7 +36,7 @@ fn main() {
     println!("b next item = {:?}", b.tail());
 
     if let Some(link) = a.tail() {
-        *link.borrow_mut() = Rc::clone(&b);
+        *link.borrow_mut() = Rc::downgrade(&b);
     }
 
     println!("b rc count after changing a = {}", Rc::strong_count(&b));
