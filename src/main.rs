@@ -23,46 +23,15 @@ impl List {
     }
 }
 
+use std::thread;
+use std::time::Duration;
+
 fn main() {
-    // 2
-    let leaf = Rc::new(Node {
-        value: 3,
-        parent: RefCell::new(Weak::new()),
-        children: RefCell::new(vec![]),
+    let v = vec![1, 2, 3];
+
+    let handle = thread::spawn(|| {
+        println!("Here's a vector: {:?}", v);
     });
 
-    println!(
-        "leaf strong = {}, weak = {}",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
-
-    {
-        let branch = Rc::new(Node {
-            value: 5,
-            parent: RefCell::new(Weak::new()),
-            children: RefCell::new(vec![Rc::clone(&leaf)]), 
-        });
-
-        *leaf.parent.borrow_mut() = Rc::downgrade(&branch);
-
-        println!(
-            "branch strong = {}, weak = {}",
-            Rc::strong_count(&branch), // 1
-            Rc::weak_count(&branch), // 1
-        );
-
-        println!(
-            "leaf strong = {}, weak = {}",
-            Rc::strong_count(&leaf),
-            Rc::weak_count(&leaf),
-        );
-    }
-
-    println!("leaf parent = {:?}", leaf.parent.borrow().upgrade());
-    println!(
-        "leaf strong = {}, weak = {}",
-        Rc::strong_count(&leaf),
-        Rc::weak_count(&leaf),
-    );
+    handle.join().unwrap();
 }
