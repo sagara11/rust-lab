@@ -1,6 +1,7 @@
 use crate::List::{Cons, Nil};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
+use std::sync::mpsc;
 
 #[derive(Debug)]
 enum List {
@@ -27,11 +28,17 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
-    let v = vec![1, 2, 3];
+    let (tx, rx) = mpsc::channel();
 
-    let handle = thread::spawn(|| {
-        println!("Here's a vector: {:?}", v);
+    thread::spawn(move || {
+        let val = String::from("hi");
+        tx.send(val).unwrap();
     });
+    for i in 0..5 {
+        let received = rx.try_recv().unwrap();
+        println!("Got: {}", received);
+        println!("{}", i * 2);
+    }
 
-    handle.join().unwrap();
+    // new_thread.join().unwrap();
 }
